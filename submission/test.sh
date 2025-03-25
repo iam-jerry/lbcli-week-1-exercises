@@ -22,23 +22,47 @@ echo "----------------------------------------"
 echo "Create a wallet named 'btrustwallet' to track your Bitcoin exploration"
 # STUDENT TASK: Use bitcoin-cli to create a wallet named "btrustwallet"
 # WRITE YOUR SOLUTION BELOW:
+bitcoin-cli -regtest createwallet "btrustwallet"
+
 
 
 # Create a second wallet that will hold the treasure
 echo "Now, create another wallet called 'treasurewallet' to fund your adventure"
 # STUDENT TASK: Create another wallet called "treasurewallet"
 # WRITE YOUR SOLUTION BELOW:
+bitcoin-cli -regtest createwallet "treasurewallet"
 
 
 # Generate an address for mining in the treasure wallet
 # STUDENT TASK: Generate a new address in the treasurewallet
 # WRITE YOUR SOLUTION BELOW:
-TREASURE_ADDR=
-check_cmd "Address generation"
+TREASURE_ADDR=$(bitcoin-cli -regtest -rpcwallet="treasurewallet" getnewaddress)
+#check_cmd "Address generation"
+check_cmd() {
+    if [ $? -ne 0 ]; then
+        echo "Error: $1 failed."
+        exit 1
+    else
+        echo "$1 succeeded."
+    fi
+}
+
 echo "Mining to address: $TREASURE_ADDR"
 
 # Mine some blocks to get initial coins
+mine_blocks() {
+    local num_blocks=$1
+    local address=$2
+
+    for ((i=0; i<num_blocks; i++)); do
+        # Generate a block by mining to the specified address
+        bitcoin-cli -regtest -rpcwallet="treasurewallet" generatetoaddress 1 "$address"
+    done
+}
+
+# Now you can call the function to mine 101 blocks
 mine_blocks 101 $TREASURE_ADDR
+
 
 # CHALLENGE PART 2: Check your starting balance 
 echo ""
@@ -47,9 +71,19 @@ echo "-----------------------------------------"
 echo "Check your wallet balance to see what resources you have to start"
 # STUDENT TASK: Get the balance of btrustwallet
 # WRITE YOUR SOLUTION BELOW:
-BALANCE=
-check_cmd "Balance check"
-echo "Your starting balance: $BALANCE BTC"
+#BALANCE=
+#check_cmd "Balance check"
+#echo "Your starting balance: $BALANCE BTC"
+# Get the balance of btrustwallet
+BALANCE=$(bitcoin-cli -regtest -rpcwallet="btrustwallet" getbalance)
+# Check if the balance check was successful
+if [ $? -ne 0 ]; then
+    echo "Error: Balance check failed."
+    exit 1
+else
+    echo "Your starting balance: $BALANCE BTC"
+fi
+
 
 # CHALLENGE PART 3: Generate different address types to collect treasures
 echo ""
@@ -59,18 +93,53 @@ echo "The treasure hunt requires 4 different types of addresses to collect funds
 echo "Generate one of each address type (legacy, p2sh-segwit, bech32, bech32m)"
 # STUDENT TASK: Generate addresses of each type
 # WRITE YOUR SOLUTION BELOW:
-LEGACY_ADDR=
-check_cmd "Legacy address generation"
+#LEGACY_ADDR=
+#check_cmd "Legacy address generation"
 
-P2SH_ADDR=
-check_cmd "P2SH address generation"
+#P2SH_ADDR=
+#check_cmd "P2SH address generation"
 
-SEGWIT_ADDR=
-check_cmd "SegWit address generation"
+#SEGWIT_ADDR=
+#check_cmd "SegWit address generation"
 
-TAPROOT_ADDR=
-check_cmd "Taproot address generation"
+#TAPROOT_ADDR=
+#check_cmd "Taproot address generation"
 
+#echo "Your exploration addresses:"
+#echo "- Legacy treasure map: $LEGACY_ADDR"
+#echo "- P2SH ancient vault: $P2SH_ADDR"
+#echo "- SegWit digital safe: $SEGWIT_ADDR"
+#echo "- Taproot quantum vault: $TAPROOT_ADDR"
+
+# Generate a Legacy Address
+LEGACY_ADDR=$(bitcoin-cli -regtest -rpcwallet="btrustwallet" getnewaddress "" "legacy")
+if [ $? -ne 0 ]; then
+    echo "Error: Legacy address generation failed."
+    exit 1
+fi
+
+# Generate a P2SH Address
+P2SH_ADDR=$(bitcoin-cli -regtest -rpcwallet="btrustwallet" getnewaddress "" "p2sh-segwit")
+if [ $? -ne 0 ]; then
+    echo "Error: P2SH address generation failed."
+    exit 1
+fi
+
+# Generate a SegWit Address (Bech32)
+SEGWIT_ADDR=$(bitcoin-cli -regtest -rpcwallet="btrustwallet" getnewaddress "" "bech32")
+if [ $? -ne 0 ]; then
+    echo "Error: SegWit address generation failed."
+    exit 1
+fi
+
+# Generate a Taproot Address (Bech32m)
+TAPROOT_ADDR=$(bitcoin-cli -regtest -rpcwallet="btrustwallet" getnewaddress "" "bech32m")
+if [ $? -ne 0 ]; then
+    echo "Error: Taproot address generation failed."
+    exit 1
+fi
+
+# Output the generated addresses
 echo "Your exploration addresses:"
 echo "- Legacy treasure map: $LEGACY_ADDR"
 echo "- P2SH ancient vault: $P2SH_ADDR"
