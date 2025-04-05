@@ -38,16 +38,8 @@ bitcoin-cli -regtest createwallet "treasurewallet"
 # WRITE YOUR SOLUTION BELOW:
 TREASURE_ADDR=$(bitcoin-cli -regtest -rpcwallet="treasurewallet" getnewaddress)
 #check_cmd "Address generation"
-check_cmd() {
-    if [ $? -ne 0 ]; then
-        echo "Error: $1 failed."
-        exit 1
-    else
-        echo "$1 succeeded."
-    fi
-}
+echo "Generated address for treasurewallet: $TREASURE_ADDR"
 
-echo "Mining to address: $TREASURE_ADDR"
 
 # Mine some blocks to get initial coins
 mine_blocks() {
